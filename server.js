@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const passport = require("passport");
 const users = require("./routes/api/users");
+const path = require("path");
 
 const app = express();
 
@@ -27,6 +28,11 @@ mongoose
 
 app.use(passport.initialize());
 require("./config/passport")(passport);
+
+app.use(express.static("ui/build"));
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "ui", "build", "index.html"));
+});
 
 // ROUTES:
 app.use("/api/users", users);
