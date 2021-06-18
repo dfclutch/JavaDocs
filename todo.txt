@@ -1,0 +1,5 @@
+Backend:
+[ ] Update password validator logic?
+  * refactor with lodash
+[ ] PW validator UI
+
