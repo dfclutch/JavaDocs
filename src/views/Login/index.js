@@ -1,97 +1,44 @@
-import React, { useState } from 'react';
-import { Link, useHistory } from 'react-router-dom';
-import { Button, CircularProgress } from '@material-ui/core';
+import React from 'react';
+import { withRouter } from 'react-router-dom';
 
-import { StyledTextInput } from './styles';
-import { connect } from 'react-redux';
-import { logInUser } from '../../redux/actions/auth';
-import { getLoginDidError, getLoginInputErrors, getLoginLoading } from '../../redux/stateSelectors.js/auth';
-import { get, isEmpty } from 'lodash';
+import { loginUser, registerUser } from './actions';
+import LoginView from './view';
 
-function buildOnChangeHandler(setterFunction) {
-  return (e) => setterFunction(e.target.value);
-}
-
-function Login({
-  didError,
-  inputErrors,
-  loading,
-  loging
-}) {
-  const history = useHistory();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  function handleSubmit() {
-    loging({ email, password, history });
+class Register extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      loading: false,
+      formErrors: {},
+      networkError: false
+    };
   }
 
-  if (loading) {
-    return <CircularProgress color="primary"/>
+  submit =  async ({ username, password }) => {
+    this.setState({ loading: true });
+    const loginResponse = await loginUser({ username, password });
+    this.setState({ loading: false });
+
+    if (!loginResponse.success || !loginResponse.token) {
+      if (loginResponse.formError) {
+        return this.setState({ formErrors: loginResponse.formErrors });
+      }
+      return this.props.history.push('/error');
+    }
+
+    localStorage.setItem('token', loginResponse.token)
+    this.props.history.push('/app');
   }
 
-  if(didError && isEmpty(inputErrors)) {
-    return <>Hey sorry, something broke</>
-  }
-
-  return (
-    <>
-      <h1>Log In</h1>
-      <form>
-        <StyledTextInput
-          variant='outlined'
-          label='email'
-          value={email}
-          onChange={buildOnChangeHandler(setEmail)}
-          error={didError && inputErrors.email}
-          helperText={get(inputErrors,'email','')}
-        />
-        <StyledTextInput
-          variant='outlined'
-          label='password'
-          value={password}
-          onChange={buildOnChangeHandler(setPassword)}
-          error={didError && inputErrors.password}
-          helperText={get(inputErrors,'password','')}
-        />
-      </form>
-      <Button
-        variant='contained'
-        color='secondary'
-        size='large'
-        onClick={handleSubmit}
-      >
-        Log In
-      </Button>
-      <hr/>
-      No Account?
-      <Link to='/register'>
-        <Button
-          color="primary"
-        >
-          Sign Up
-        </Button>
-      </Link>
-    </>
-  );
-}
-
-function mapStateToProps(state) {
-  return {
-    loading: getLoginLoading(state),
-    didError: getLoginDidError(state),
-    inputErrors: getLoginInputErrors(state),
+  render() {
+    return (
+      <LoginView
+        loading={this.state.loading}
+        formErrors={this.state.formErrors}
+        submit={this.submit}
+      />
+    );
   }
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    loging: ({
-      email,
-      password,
-      history
-    }) => dispatch(logInUser({email, password, history}))
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default withRouter(Register);
