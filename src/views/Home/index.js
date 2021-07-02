@@ -12,12 +12,16 @@ function Home() {
   return (
     <Box>
       <h1>Welcome to JavaDocs</h1>
-      <StyledButton variant="contained" color="primary">
-        <Link to='/login'>Sign In</Link>
-      </StyledButton>
-      <StyledButton variant="contained" color="secondary">
-        <Link to='/register'>Sign Up</Link>
-      </StyledButton>
+      <Link to='/login'>
+        <StyledButton variant="contained" color="primary">
+          Sign In
+        </StyledButton>
+      </Link>
+      <Link to='/register'>
+        <StyledButton variant="contained" color="secondary">
+          Sign Up
+        </StyledButton>
+      </Link>
     </Box>
   );
 }

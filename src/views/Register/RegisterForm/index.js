@@ -13,7 +13,6 @@ function RegisterForm({ errors, submit }) {
   const [password, setPassword] = useState('');
   const [password2, setPassword2] = useState('');
 
-
   function handleSubmit(e) {
     e.preventDefault();
     submit({ username, password, password2 });
